@@ -1,13 +1,17 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:CircleTool.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="550"
-        x:Class="CircleTool.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="CircleTool">
+<Window 
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:CircleTool.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Width="1920"
+    Height="1080"
+    x:Class="CircleTool.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    Icon="/Assets/avalonia-logo.ico"
+    Title="CircleTool"
+    WindowState="Maximized"
+>
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -15,61 +19,165 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel>
+    <DockPanel>
 
-        <Border 
-            CornerRadius="10" 
-            Background="LightBlue"
-            Margin="5" 
+        <ContentControl 
+            Content="{Binding Canvas}"
+            DockPanel.Dock="Left"
+            Margin="20"
         >
-            <TextBlock 
-                Text="Temperature Converter"
-                FontSize="24" 
-                HorizontalAlignment="Center"
+            <ContentControl.ContentTemplate>
+                <DataTemplate DataType="vm:CircleCanvasViewModel">
+                    <Canvas
+                        Background="AliceBlue"
+                        Width="{Binding Size}"
+                        Height="{Binding Size}"
+                        HorizontalAlignment="Stretch"
+                    >
+                        <Viewbox
+                            Stretch="Uniform"
+                            StretchDirection="UpOnly"
+                            Width="{Binding CircleView}"
+                            Height="{Binding CircleView}"
+                            Canvas.Top="{Binding CircleOffset}"
+                            Canvas.Left="{Binding CircleOffset}"
+                        >
+                            <Ellipse 
+                                Stroke="CornflowerBlue"
+                                StrokeThickness="2"
+                                Width="{Binding CircleSize}" 
+                                Height="{Binding CircleSize}" 
+                            />
+                        </Viewbox>
+                        <Polyline
+                            Points="{Binding Points}"
+                            Stroke="Black"
+                            StrokeThickness="2"
+                        />
+                    </Canvas>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
+
+        <StackPanel 
+            Orientation="Vertical"
+            DockPanel.Dock="Right"
+            Margin="20"
+        >
+
+            <Border 
+                CornerRadius="5" 
+                Background="LightBlue"
                 Margin="5" 
-            />
-        </Border>
+            >
+                <TextBlock 
+                    Text="Settings"
+                    FontSize="22" 
+                    HorizontalAlignment="Center"
+                    Margin="5" 
+                />
+            </Border>
 
-        <Grid 
-            ColumnDefinitions="120, 100" 
-            RowDefinitions="Auto, Auto, Auto"
-            HorizontalAlignment="Center"
-            Margin="5" 
-        >
+            <Border
+                CornerRadius="5"
+                BorderBrush="LightBlue"
+                BorderThickness="1"
+                Margin="5"
+            >
+                <StackPanel Margin="10">
+                    <TextBlock
+                        Text="Circle"
+                        FontSize="18"
+                    />
 
-            <Label 
-                Content="Celsius"
-                Grid.Row="0" 
-                Grid.Column="0" 
-                Margin="10"
-            />
+                    <TextBlock 
+                        Text="Radius:"
+                        FontSize="15" 
+                        Margin="10 20" 
+                    />
+                    <NumericUpDown 
+                        Value="{Binding #radius_slider.Value, StringFormat={}{0:0.0}}" 
+                        Margin="20 0"
+                    />
+                    <Slider 
+                        Value="{Binding Canvas.Radius}"
+                        x:Name="radius_slider" 
+                        Maximum="{Binding Canvas.MaxRadius}"
+                        TickFrequency="5"
+                        TickPlacement="BottomRight"
+                        Margin="20 0"
+                    />
 
-            <TextBox 
-                Name="celcius"
-                Text="{Binding Celcius, Mode=TwoWay, StringFormat={}{0:0.0}}" 
-                Grid.Row="0" 
-                Grid.Column="1" 
-                Margin="0 5" 
-            />
-            
-            <Label 
-                Content="Fahrenheit"
-                Grid.Row="1" 
-                Grid.Column="0" 
-                Margin="10"
-            />
-            
-            <TextBox 
-                Name="fahrenheit"
-                Text="{Binding Fahrenheit, StringFormat={}{0:0.0}}" 
-                IsReadOnly="True"
-                Grid.Row="1" 
-                Grid.Column="1" 
-                Margin="0 5" 
-            />
+                    <TextBlock 
+                        Text="Mode:"
+                        FontSize="15"
+                        Margin="10 20" 
+                    />
+                    <RadioButton 
+                        GroupName="Mode"
+                        Content="Midpoint"
+                        IsChecked="True"
+                        Margin="20 0"
+                    />
+                    <RadioButton 
+                        GroupName="Mode"
+                        Content="Max"
+                        Margin="20 0"
+                    />
+                    <RadioButton 
+                        GroupName="Mode"
+                        Content="Min"
+                        Margin="20 0"
+                    />
+                </StackPanel>
+            </Border>
 
-        </Grid>
+            <Border
+                CornerRadius="5"
+                BorderBrush="LightBlue"
+                BorderThickness="1"
+                Margin="5"
+            >
+                <StackPanel Margin="10">
+                    <TextBlock
+                        Text="View"
+                        FontSize="18"
+                    />
 
-    </StackPanel>
+                    <TextBlock 
+                        Text="Grid Size:"
+                        FontSize="15" 
+                        Margin="10 20" 
+                    />
+                    <NumericUpDown 
+                        Value="{Binding #gridSize_slider.Value, StringFormat={}{0:0}}" 
+                        Margin="20 0"
+                    />
+                    <Slider 
+                        Value="{Binding Canvas.CellCount}"
+                        x:Name="gridSize_slider" 
+                        TickFrequency="1"
+                        TickPlacement="BottomRight"
+                        IsSnapToTickEnabled="True"
+                        Margin="20 0"
+                    />
+
+                    <TextBlock
+                        Text="Grid Lines:"
+                        FontSize="15"
+                        Margin="10 20"
+                    />
+                    <CheckBox
+                        x:Name="showGridLines_checkBox"
+                        Content="Show"
+                        IsChecked="True"
+                        Margin="20 0"
+                    />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+    </DockPanel>
 
 </Window>

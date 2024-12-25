@@ -27,6 +27,11 @@ public partial class App : Application
             {
                 DataContext = new MainWindowViewModel(),
             };
+
+            var win = desktop.MainWindow;
+            if (win.DataContext is not null)
+                (win.DataContext as MainWindowViewModel).
+                    InitCanvas((int)win.Width, (int)win.Height);
         }
 
         base.OnFrameworkInitializationCompleted();
