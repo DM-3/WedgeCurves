@@ -12,7 +12,8 @@ public partial class MainWindowViewModel : ViewModelBase
         int minSize = width < height ? width : height;
         Canvas.Size = minSize - 120;
 
-        Canvas.updateCircle();
-        Canvas.updatePoints();
+        Canvas.UpdateCircle();
+        Canvas.UpdateCells();
+        Canvas.UpdatePoints();
     }
 }

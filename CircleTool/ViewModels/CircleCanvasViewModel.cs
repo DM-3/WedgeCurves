@@ -1,7 +1,9 @@
 using Avalonia;
+using Avalonia.Media.TextFormatting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace CircleTool.ViewModels;
@@ -16,8 +18,9 @@ public partial class CircleCanvasViewModel : ViewModelBase
     private double _radius = 10;
     partial void OnRadiusChanged(double value)
     {
-        updateCircle();
-        updatePoints();
+        UpdateCircle();
+        UpdateCells();
+        UpdatePoints();
     }
 
     // maximum circle radius in cell units
@@ -30,8 +33,8 @@ public partial class CircleCanvasViewModel : ViewModelBase
     partial void OnCellCountChanged(int value)
     {
         MaxRadius = value - .5;
-        updateCircle();
-        updatePoints();
+        UpdateCircle();
+        UpdatePoints();
     }
 
     private double pxPerCell() => Size / ((double)CellCount);
@@ -46,7 +49,7 @@ public partial class CircleCanvasViewModel : ViewModelBase
     [ObservableProperty]
     private double _circleOffset;
 
-    public void updateCircle()
+    public void UpdateCircle()
     {
         CircleSize = 2 * Radius * pxPerCell();
         CircleView = (Radius + .5) * pxPerCell();
@@ -56,25 +59,21 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // approximated circle
 
-    private List<Point> _cells = 
-        new List<Point>(
-        [
-            new Point(0,  0),
-            new Point(0,  10),
-            new Point(4,  9),
-            new Point(6,  8),
-            new Point(8,  6),
-            new Point(9,  4),
-            new Point(10, 0)
-        ]);
+    private Point[] _cells = Logic.CircleApproximator.Rasterize(10);
     
-    [ObservableProperty]
-    private List<Point> _points = new List<Point>();
-
-    public void updatePoints()
+    public void UpdateCells()
     {
-        double offset = CellCount - 0.5;
-        Points = new List<Point>(from p in _cells select 
-            (new Point(offset, offset) - p * Radius / 10) * pxPerCell());
+        _cells = Logic.CircleApproximator.Rasterize(Radius);
+    }
+
+
+    [ObservableProperty]
+    private Point[] _points = [];
+
+    public void UpdatePoints()
+    {
+        Point offset = new Point(CellCount - 0.5, CellCount - 0.5);
+        Func<Point, Point> trans = p => (offset - p) * pxPerCell();
+        Points = (from p in _cells select trans(p)).ToArray();
     }
 }
