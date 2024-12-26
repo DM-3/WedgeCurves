@@ -116,17 +116,28 @@
                     <RadioButton 
                         GroupName="Mode"
                         Content="Midpoint"
-                        IsChecked="True"
                         Margin="20 0"
                     />
                     <RadioButton 
                         GroupName="Mode"
                         Content="Max"
+                        IsChecked="True"
                         Margin="20 0"
                     />
                     <RadioButton 
                         GroupName="Mode"
                         Content="Min"
+                        Margin="20 0"
+                    />
+
+                    <TextBlock
+                        Text="Miscellaneous"
+                        FontSize="15"
+                        Margin="10 20"
+                    />
+                    <CheckBox
+                        Content="narrow approximation"
+                        IsChecked="{Binding Canvas.Narrow}"
                         Margin="20 0"
                     />
                 </StackPanel>

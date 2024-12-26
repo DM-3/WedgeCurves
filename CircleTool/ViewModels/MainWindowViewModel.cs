@@ -14,6 +14,5 @@ public partial class MainWindowViewModel : ViewModelBase
 
         Canvas.UpdateCircle();
         Canvas.UpdateCells();
-        Canvas.UpdatePoints();
     }
 }

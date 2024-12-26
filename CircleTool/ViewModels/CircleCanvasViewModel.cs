@@ -20,7 +20,6 @@ public partial class CircleCanvasViewModel : ViewModelBase
     {
         UpdateCircle();
         UpdateCells();
-        UpdatePoints();
     }
 
     // maximum circle radius in cell units
@@ -59,11 +58,23 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // approximated circle
 
-    private Point[] _cells = Logic.CircleApproximator.Rasterize(10);
+    private Point[] _cells = [];
     
     public void UpdateCells()
     {
-        _cells = Logic.CircleApproximator.Rasterize(Radius);
+        _cells = Logic.CircleApproximator.WedgesMax(Radius, Narrow);
+        UpdatePoints();
+    }
+
+    private bool _narrow = false;
+    public bool Narrow
+    { 
+        get => _narrow; 
+        set
+        {
+            _narrow = value;
+            UpdateCells();
+        }
     }
 
 
