@@ -14,8 +14,7 @@ public partial class CircleCanvasViewModel : ViewModelBase
     public int Size { get; set; }
 
     // circle radius in cell units
-    [ObservableProperty]
-    private double _radius = 10;
+    [ObservableProperty] private double _radius = 10;
     partial void OnRadiusChanged(double value)
     {
         UpdateCircle();
@@ -23,12 +22,10 @@ public partial class CircleCanvasViewModel : ViewModelBase
     }
 
     // maximum circle radius in cell units
-    [ObservableProperty]
-    private double _maxRadius = 15.5;
+    [ObservableProperty] private double _maxRadius = 15.5;
 
     // cells per canvas width or height
-    [ObservableProperty]
-    private int _cellCount = 16;
+    [ObservableProperty] private int _cellCount = 16;
     partial void OnCellCountChanged(int value)
     {
         MaxRadius = value - .5;
@@ -41,18 +38,17 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // true circle
 
-    [ObservableProperty]
-    private double _circleSize;
-    [ObservableProperty]
-    private double _circleView;
-    [ObservableProperty]
-    private double _circleOffset;
+    [ObservableProperty] private double _circleSize;
+    [ObservableProperty] private double _circleView;
+    [ObservableProperty] private double _circleOffset;
+    [ObservableProperty] private int _centerLineOffset = 100;
 
     public void UpdateCircle()
     {
         CircleSize = 2 * Radius * pxPerCell();
         CircleView = (Radius + .5) * pxPerCell();
         CircleOffset = Math.Max(Size - CircleView, 0.0);
+        CenterLineOffset = (int)pxPerCell() / 2;
     }
 
 
@@ -78,8 +74,7 @@ public partial class CircleCanvasViewModel : ViewModelBase
     }
 
 
-    [ObservableProperty]
-    private Point[] _points = [];
+    [ObservableProperty] private Point[] _points = [];
 
     public void UpdatePoints()
     {

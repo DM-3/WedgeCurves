@@ -49,6 +49,22 @@
                                 Height="{Binding CircleSize}" 
                             />
                         </Viewbox>
+                        <Rectangle
+                            Width="1"
+                            Height="{Binding CircleView}"
+                            Canvas.Right="{Binding CenterLineOffset}"
+                            Canvas.Bottom="0"
+                            Stroke="LightGray"
+                            StrokeThickness="2"
+                        />
+                        <Rectangle
+                            Width="{Binding CircleView}"
+                            Height="1"
+                            Canvas.Right="0"
+                            Canvas.Bottom="{Binding CenterLineOffset}"
+                            Stroke="LightGray"
+                            StrokeThickness="2"
+                        />
                         <Polyline
                             Points="{Binding Points}"
                             Stroke="Black"
