@@ -195,9 +195,8 @@
                         Margin="10 20"
                     />
                     <CheckBox
-                        x:Name="showGridLines_checkBox"
                         Content="Show"
-                        IsChecked="True"
+                        IsChecked="{Binding Canvas.ShowGrid}"
                         Margin="20 0"
                     />
                 </StackPanel>

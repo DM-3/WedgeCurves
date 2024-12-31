@@ -87,7 +87,7 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
 
     // grid
-
+    
     public ObservableCollection<Line> VerticalGridLines { get; }
         = new ObservableCollection<Line>();
     public ObservableCollection<Line> HorizontalGridLines { get; }
@@ -117,6 +117,19 @@ public partial class CircleCanvasViewModel : ViewModelBase
             line.StartPoint = new Point(step, 0);
             line.EndPoint = new Point(step, Size);
             HorizontalGridLines.Add(line);
+        }
+    }
+
+    [ObservableProperty]
+    private bool _showGrid = true;
+    partial void OnShowGridChanged(bool value)
+    {
+        if (value)
+            UpdateGrid();
+        else
+        {
+            VerticalGridLines.Clear();
+            HorizontalGridLines.Clear();
         }
     }
 }
