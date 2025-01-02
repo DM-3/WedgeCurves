@@ -1,55 +1,39 @@
 using Avalonia;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CircleTool.Logic;
 
 public class CircleApproximator
 {
-    public static Point[] Rasterize(double radius)
+    public static Point[] Rasterize(double radius, bool outsideEdge)
     {
-        // determine cells on circle
-
         List<Point> cells = new List<Point>();
 
         int x = 0;
         int y = (int)Math.Floor(radius);
+        
+        cells.Add(new Point(x - 0.5, y + 0.5));
+        cells.Add(new Point(y + 0.5, x - 0.5));
         while (x <= y)
         {
-            cells.Add(new Point(x, y));
-            if (x != y) 
-                cells.Add(new Point(y, x));
-
-            x++;
             if (x * x + y * y > radius * radius)
+            {
                 y--;
+                x--;
+            }
+
+            cells.Add(new Point(x + 0.5, y + 0.5));
+            if (x != y)
+                cells.Add(new Point(y + 0.5, x + 0.5));
+            x++;
         }
 
-        cells.Sort((l, r) => (l.X - l.Y).CompareTo(r.X - r.Y));
-
-
-        // expand cells to blocks
-
-        List<Point> blocks = new List<Point>();
-
-        foreach (var c in cells)
-            blocks.AddRange(
-                [
-                    new Point(c.X + .5, c.Y + .5),
-                    new Point(c.X + .5, c.Y - .5),
-                    new Point(c.X - .5, c.Y - .5),
-                    new Point(c.X - .5, c.Y + .5),
-                    new Point(c.X + .5, c.Y + .5)
-                ]);
-
-        return blocks.ToArray();
+        return LineToWedges(cells, true, outsideEdge);
     }
 
-    public static Point[] WedgesMax(double radius, bool narrow)
+    public static Point[] WedgesMax(double radius, bool narrow, bool outsideEdge)
     {
-        // generate line segments
-
         List<Point> cells = new List<Point>();
 
         double x = -0.5;
@@ -69,10 +53,45 @@ public class CircleApproximator
             x++;
         }
 
+        return LineToWedges(cells, narrow, outsideEdge);
+    }
+
+    public static Point[] WedgesMin(double radius, bool narrow, bool outsideEdge)
+    {
+        List<Point> cells = new List<Point>();
+
+        double a = radius * 0.707106781;
+        double x = Math.Floor(a) + 0.5;
+        double y = Math.Floor(a + 0.5) + 0.5;
+
+        cells.Add(new Point(x, y));
+        if (x != y)
+            cells.Add(new Point(y, x));
+
+        y++;
+        while (x > 0.5)
+        {
+            // TODO: better line-circle intersection test
+            if ((x - 1) * (x - 1) + y * y < radius * radius)
+            {
+                cells.Add(new Point(x, y));
+                cells.Add(new Point(y, x));
+                y++;
+            }
+            x--;
+        }
+        cells.Add(new Point(0.5, y));
+        cells.Add(new Point(-0.5, y));
+        cells.Add(new Point(y, 0.5));
+        cells.Add(new Point(y, -0.5));
+
+        return LineToWedges(cells, narrow, outsideEdge);
+    }
+
+    // expand line segments to wedges and blocks
+    private static Point[] LineToWedges(List<Point> cells, bool narrow, bool outsideEdge)
+    {
         cells.Sort((l, r) => (l.X - l.Y).CompareTo(r.X - r.Y));
-
-
-        // expand line segments to wedges and blocks
 
         var array = cells.ToArray();
         cells.Clear();
@@ -91,11 +110,11 @@ public class CircleApproximator
                 }
 
             // add wedge or block
-            cells.AddRange([ array[i], array[i] + d]);
+            cells.AddRange([ array[i], array[i] + d ]);
+            var invD = new Point(d.Y, d.X) / (d.X + d.Y) * (outsideEdge ? -1 : 1);
             cells.AddRange(d.X * d.Y == 0 ? 
-                [array[i] - new Point(d.Y, d.X) / (d.X + d.Y) + d,
-                 array[i] - new Point(d.Y, d.X) / (d.X + d.Y)] :
-                [cells.Last() - new Point(d.X, 0)]);
+                [ array[i] + invD + d, array[i] + invD ] :
+                [ array[i] + (outsideEdge ? new Point(0, d.Y) : new Point(d.X, 0)) ]);
             cells.AddRange([ array[i], array[i] + d]);
         }
 

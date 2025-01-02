@@ -4,6 +4,8 @@
     xmlns:vm="using:CircleTool.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Avalonia.Controls"
+    xmlns:converters="using:Avalonia.Controls.Converters"
     Width="1920"
     Height="1080"
     x:Class="CircleTool.Views.MainWindow"
@@ -12,6 +14,10 @@
     Title="CircleTool"
     WindowState="Maximized"
 >
+
+    <Window.Resources>
+        <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+    </Window.Resources>
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -118,7 +124,7 @@
                         Value="{Binding Canvas.Radius}"
                         x:Name="radius_slider" 
                         Maximum="{Binding Canvas.MaxRadius}"
-                        TickFrequency="5"
+                        TickFrequency="1"
                         TickPlacement="BottomRight"
                         Margin="20 0"
                     />
@@ -128,20 +134,23 @@
                         FontSize="15"
                         Margin="10 20" 
                     />
+
                     <RadioButton 
-                        GroupName="Mode"
-                        Content="Midpoint"
+                        GroupName="ApproximationMode"
+                        Content="Rasterize"
+                        IsChecked="{Binding Canvas.SelectedMode, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static vm:ApproximationMode.Rasterize}, Mode=TwoWay}"
                         Margin="20 0"
                     />
                     <RadioButton 
-                        GroupName="Mode"
+                        GroupName="ApproximationMode"
                         Content="Max"
-                        IsChecked="True"
+                        IsChecked="{Binding Canvas.SelectedMode, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static vm:ApproximationMode.Max}, Mode=TwoWay}"
                         Margin="20 0"
                     />
                     <RadioButton 
-                        GroupName="Mode"
+                        GroupName="ApproximationMode"
                         Content="Min"
+                        IsChecked="{Binding Canvas.SelectedMode, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static vm:ApproximationMode.Min}, Mode=TwoWay}"
                         Margin="20 0"
                     />
 
@@ -149,6 +158,11 @@
                         Text="Miscellaneous"
                         FontSize="15"
                         Margin="10 20"
+                    />
+                    <CheckBox
+                        Content="outside edge"
+                        IsChecked="{Binding Canvas.OutsideEdge}"
+                        Margin="20 0"
                     />
                     <CheckBox
                         Content="narrow approximation"

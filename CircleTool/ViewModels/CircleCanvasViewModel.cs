@@ -1,16 +1,19 @@
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Avalonia.Media.TextFormatting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 
 namespace CircleTool.ViewModels;
+
+public enum ApproximationMode
+{
+    Rasterize,
+    Max,
+    Min
+}
 
 public partial class CircleCanvasViewModel : ViewModelBase
 {
@@ -56,25 +59,33 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // approximated circle
 
+    [ObservableProperty] private ApproximationMode _selectedMode = ApproximationMode.Max;
+    partial void OnSelectedModeChanged(ApproximationMode value) => UpdateCells();
+
+    [ObservableProperty] private bool _outsideEdge = true;
+    partial void OnOutsideEdgeChanged(bool value) => UpdateCells();
+
+    [ObservableProperty] private bool _narrow = false;
+    partial void OnNarrowChanged(bool value) => UpdateCells();
+
+
     private Point[] _cells = [];
     
     public void UpdateCells()
     {
-        _cells = Logic.CircleApproximator.WedgesMax(Radius, Narrow);
+        _cells = SelectedMode switch
+        {
+            ApproximationMode.Rasterize => 
+                Logic.CircleApproximator.Rasterize(Radius, OutsideEdge),
+            ApproximationMode.Max => 
+                Logic.CircleApproximator.WedgesMax(Radius, Narrow, OutsideEdge),
+            ApproximationMode.Min => 
+                Logic.CircleApproximator.WedgesMin(Radius, Narrow, OutsideEdge),
+            
+            _ => throw new NotImplementedException()
+        };
         UpdatePoints();
     }
-
-    private bool _narrow = false;
-    public bool Narrow
-    { 
-        get => _narrow; 
-        set
-        {
-            _narrow = value;
-            UpdateCells();
-        }
-    }
-
 
     [ObservableProperty] private Point[] _points = [];
 
