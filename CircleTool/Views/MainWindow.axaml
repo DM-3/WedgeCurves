@@ -70,6 +70,14 @@
                                 Height="{Binding CircleSize}" 
                             />
                         </Viewbox>
+                        <Ellipse
+                            Stroke="Red"
+                            StrokeThickness="2"
+                            Width="20"
+                            Height="20"
+                            Canvas.Bottom="{Binding CircleCenter}"
+                            Canvas.Right="{Binding CircleCenter}"
+                        />
                         <Polyline
                             Points="{Binding Points}"
                             Stroke="Black"
@@ -124,6 +132,7 @@
                         Value="{Binding Canvas.Radius}"
                         x:Name="radius_slider" 
                         Maximum="{Binding Canvas.MaxRadius}"
+                        Minimum="1"
                         TickFrequency="1"
                         TickPlacement="BottomRight"
                         Margin="20 0"
@@ -160,13 +169,18 @@
                         Margin="10 20"
                     />
                     <CheckBox
-                        Content="outside edge"
+                        Content="Outside edge"
                         IsChecked="{Binding Canvas.OutsideEdge}"
                         Margin="20 0"
                     />
                     <CheckBox
-                        Content="narrow approximation"
+                        Content="Narrow approximation"
                         IsChecked="{Binding Canvas.Narrow}"
+                        Margin="20 0"
+                    />
+                    <CheckBox
+                        Content="Odd center"
+                        IsChecked="{Binding Canvas.OddCenter}"
                         Margin="20 0"
                     />
                 </StackPanel>
