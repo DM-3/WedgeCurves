@@ -6,13 +6,14 @@ namespace CircleTool.Logic;
 
 public class CircleApproximator
 {
-    public static Point[] Rasterize(double radius, bool outsideEdge)
+    public static Point[] Rasterize(double radius, bool oddCenter, bool _, bool outsideEdge)
     {
         List<Point> cells = new List<Point>();
-
-        int x = 0;
-        int y = (int)Math.Floor(radius);
         
+        double t = 0.5 * Convert.ToDouble(!oddCenter);
+        double x = t;
+        double y = Math.Floor(radius * Math.Sin(Math.Acos(t / radius)) - t) + t;
+
         cells.Add(new Point(x - 0.5, y + 0.5));
         cells.Add(new Point(y + 0.5, x - 0.5));
         while (x <= y)
@@ -32,12 +33,13 @@ public class CircleApproximator
         return LineToWedges(cells, true, outsideEdge);
     }
 
-    public static Point[] WedgesMax(double radius, bool narrow, bool outsideEdge)
+    public static Point[] WedgesMax(double radius, bool oddCenter, bool narrow, bool outsideEdge)
     {
         List<Point> cells = new List<Point>();
 
-        double x = -0.5;
-        double y = Math.Floor(radius * Math.Sin(Math.Acos(0.5 / radius)) - 0.5) + 0.5;
+        double t = 0.5 * Convert.ToDouble(oddCenter);
+        double x = -t;
+        double y = Math.Floor(radius * Math.Sin(Math.Acos(t / radius)) - t) + t;
 
         cells.Add(new Point(x, y));
         cells.Add(new Point(y, x));
@@ -56,13 +58,14 @@ public class CircleApproximator
         return LineToWedges(cells, narrow, outsideEdge);
     }
 
-    public static Point[] WedgesMin(double radius, bool narrow, bool outsideEdge)
+    public static Point[] WedgesMin(double radius, bool oddCenter, bool narrow, bool outsideEdge)
     {
         List<Point> cells = new List<Point>();
 
+        double t = 0.5 * Convert.ToDouble(oddCenter);
         double a = radius * 0.707106781;
-        double x = Math.Floor(a) + 0.5;
-        double y = Math.Floor(a + 0.5) + 0.5;
+        double x = Math.Floor(a + 0.5 - t) + t;
+        double y = Math.Floor(a + t) + 1.0 - t;
 
         cells.Add(new Point(x, y));
         if (x != y)
@@ -80,10 +83,10 @@ public class CircleApproximator
             }
             x--;
         }
-        cells.Add(new Point(0.5, y));
-        cells.Add(new Point(-0.5, y));
-        cells.Add(new Point(y, 0.5));
-        cells.Add(new Point(y, -0.5));
+
+        cells.AddRange([ new Point(t, y), new Point(y, t) ]);
+        if (oddCenter)
+            cells.AddRange([ new Point(-t, y), new Point(y, -t) ]);
 
         return LineToWedges(cells, narrow, outsideEdge);
     }
