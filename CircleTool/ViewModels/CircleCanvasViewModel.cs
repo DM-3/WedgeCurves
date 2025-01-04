@@ -30,12 +30,13 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // maximum circle radius in cell units
     [ObservableProperty] private double _maxRadius = 15.5;
+    void UpdateMaxRadius() => MaxRadius = CellCount - .5 * Convert.ToDouble(OddCenter);
 
     // cells per canvas width or height
     [ObservableProperty] private int _cellCount = 16;
     partial void OnCellCountChanged(int value)
     {
-        MaxRadius = value - .5;
+        UpdateMaxRadius();
         UpdateGrid();
         UpdateCircle();
         UpdatePoints();
@@ -73,6 +74,7 @@ public partial class CircleCanvasViewModel : ViewModelBase
     [ObservableProperty] private bool _oddCenter = true;
     partial void OnOddCenterChanged(bool value)
     {
+        UpdateMaxRadius();
         UpdateCircle();
         UpdateCells();
     }
