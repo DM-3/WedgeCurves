@@ -30,12 +30,13 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // maximum circle radius in cell units
     [ObservableProperty] private double _maxRadius = 15.5;
+    void UpdateMaxRadius() => MaxRadius = CellCount - .5 * Convert.ToDouble(OddCenter);
 
     // cells per canvas width or height
     [ObservableProperty] private int _cellCount = 16;
     partial void OnCellCountChanged(int value)
     {
-        MaxRadius = value - .5;
+        UpdateMaxRadius();
         UpdateGrid();
         UpdateCircle();
         UpdatePoints();
@@ -49,11 +50,13 @@ public partial class CircleCanvasViewModel : ViewModelBase
     [ObservableProperty] private double _circleSize;
     [ObservableProperty] private double _circleView;
     [ObservableProperty] private double _circleOffset;
+    [ObservableProperty] private double _circleCenter = 50;
     public void UpdateCircle()
     {
         CircleSize = 2 * Radius * pxPerCell();
-        CircleView = (Radius + .5) * pxPerCell();
+        CircleView = (Radius + .5 * Convert.ToDouble(OddCenter)) * pxPerCell();
         CircleOffset = Math.Max(Size - CircleView, 0.0);
+        CircleCenter = .5 * pxPerCell() * Convert.ToDouble(OddCenter) - 10;
     }
 
 
@@ -68,22 +71,27 @@ public partial class CircleCanvasViewModel : ViewModelBase
     [ObservableProperty] private bool _narrow = false;
     partial void OnNarrowChanged(bool value) => UpdateCells();
 
+    [ObservableProperty] private bool _oddCenter = true;
+    partial void OnOddCenterChanged(bool value)
+    {
+        UpdateMaxRadius();
+        UpdateCircle();
+        UpdateCells();
+    }
 
     private Point[] _cells = [];
     
     public void UpdateCells()
     {
-        _cells = SelectedMode switch
+        Func<double, bool, bool, bool, Point[]> Gen = SelectedMode switch
         {
-            ApproximationMode.Rasterize => 
-                Logic.CircleApproximator.Rasterize(Radius, OutsideEdge),
-            ApproximationMode.Max => 
-                Logic.CircleApproximator.WedgesMax(Radius, Narrow, OutsideEdge),
-            ApproximationMode.Min => 
-                Logic.CircleApproximator.WedgesMin(Radius, Narrow, OutsideEdge),
-            
+            ApproximationMode.Rasterize => Logic.CircleApproximator.Rasterize,
+            ApproximationMode.Max       => Logic.CircleApproximator.WedgesMax,
+            ApproximationMode.Min       => Logic.CircleApproximator.WedgesMin,
             _ => throw new NotImplementedException()
         };
+        _cells = Gen(Radius, OddCenter, Narrow, OutsideEdge);
+
         UpdatePoints();
     }
 
@@ -91,8 +99,9 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     public void UpdatePoints()
     {
-        Point offset = new Point(CellCount - 0.5, CellCount - 0.5);
-        Func<Point, Point> trans = p => (offset - p) * pxPerCell();
+        double offset = CellCount - .5 * Convert.ToDouble(OddCenter);
+        Func<Point, Point> trans = 
+            p => (new Point(offset, offset) - p) * pxPerCell();
         Points = (from p in _cells select trans(p)).ToArray();
     }
 
