@@ -1,6 +1,7 @@
 using Avalonia;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CircleTool.Logic;
 
@@ -60,33 +61,41 @@ public class CircleApproximator
 
     public static Point[] WedgesMin(double radius, bool oddCenter, bool narrow, bool outsideEdge)
     {
+        Console.WriteLine();
+        var fn_intersectsCircle = (Point from, Point to) => 
+        {
+            double m = (to.Y - from.Y) / (to.X - from.X);
+            double n = to.Y - m * to.X;
+            double r = radius;
+
+            double radicand = r * r + r * r * m * m - n * n;
+
+            return radicand >= 0;
+        };
+
         List<Point> cells = new List<Point>();
 
         double t = 0.5 * Convert.ToDouble(oddCenter);
-        double a = radius * 0.707106781;
-        double x = Math.Floor(a + 0.5 - t) + t;
-        double y = Math.Floor(a + t) + 1.0 - t;
+        double x = -t;
+        double y = Math.Ceiling(radius + t) - t;
 
-        cells.Add(new Point(x, y));
-        if (x != y)
+        if (oddCenter)
+        {
+            cells.Add(new Point(x, y));
             cells.Add(new Point(y, x));
 
-        y++;
-        while (x > 0.5)
-        {
-            // TODO: better line-circle intersection test
-            if ((x - 1) * (x - 1) + y * y < radius * radius)
-            {
-                cells.Add(new Point(x, y));
-                cells.Add(new Point(y, x));
-                y++;
-            }
-            x--;
+            x++;
         }
 
-        cells.AddRange([ new Point(t, y), new Point(y, t) ]);
-        if (oddCenter)
-            cells.AddRange([ new Point(-t, y), new Point(y, -t) ]);
+        do
+        {
+            cells.Add(new Point(x, y));
+            cells.Add(new Point(y, x));
+
+            x++;
+            y = Math.Ceiling(Math.Tan(Math.Acos(x / radius)) * x + t) - t;
+        }
+        while (x <= y);
 
         return LineToWedges(cells, narrow, outsideEdge);
     }
@@ -95,8 +104,8 @@ public class CircleApproximator
     private static Point[] LineToWedges(List<Point> cells, bool narrow, bool outsideEdge)
     {
         cells.Sort((l, r) => (l.X - l.Y).CompareTo(r.X - r.Y));
-
-        var array = cells.ToArray();
+        
+        var array = cells.ToHashSet().ToArray();    // filter duplicates with hashset
         cells.Clear();
 
         for (uint i = 0, j = 1; i < array.Length - 1; i += j)
