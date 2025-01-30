@@ -62,10 +62,10 @@ public partial class CircleCanvasViewModel : ViewModelBase
 
     // approximated circle
 
-    [ObservableProperty] private ApproximationMode _selectedMode = ApproximationMode.Max;
+    [ObservableProperty] private ApproximationMode _selectedMode = ApproximationMode.Min;   // Max
     partial void OnSelectedModeChanged(ApproximationMode value) => UpdateCells();
 
-    [ObservableProperty] private bool _outsideEdge = true;
+    [ObservableProperty] private bool _outsideEdge = false; // true
     partial void OnOutsideEdgeChanged(bool value) => UpdateCells();
 
     [ObservableProperty] private bool _narrow = false;
