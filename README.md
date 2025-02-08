@@ -14,11 +14,11 @@ Tools for building curved shapes from wedge primitives.
 ## Build
 To build ```CircleTool```:
 ```
-dotnet build --project CircleTool
+cd CircleTool && dotnet build
 ```
 
 ## Run
 To run ```CircleTool```:
 ```
-dotnet run --project CircleTool
+cd CircleTool && dotnet run
 ```
